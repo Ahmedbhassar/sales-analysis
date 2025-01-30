@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Data Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Sales Data Analysis</h1>
+
+        <div class="form-section">
+            <h2>Add Sale</h2>
+            <input type="text" id="product" placeholder="Product Name">
+            <input type="number" id="price" placeholder="Price">
+            <input type="number" id="quantity" placeholder="Quantity">
+            <button onclick="addSale()">Add Sale</button>
+        </div>
+
+        <div class="data-section">
+            <h2>📋 Sales Records</h2>
+            <button onclick="fetchSales()">View Sales</button>
+            <ul id="sales-list"></ul>
+        </div>
+
+        <div class="analysis-section">
+            <h2>💰 Revenue & Insights</h2>
+            <button onclick="getRevenue()">Calculate Total Revenue</button>
+            <p id="total-revenue">Total Revenue: $0</p>
+
+            <button onclick="getBestSeller()">Best-Selling Product</button>
+            <p id="best-seller">Best Seller: None</p>
+
+            <h2>📈 Revenue Chart</h2>
+            <button onclick="loadRevenueChart()">Generate Revenue Chart</button>
+            <br>
+            <img id="chart-image" src="" style="display:none; width: 100%; max-width: 500px;">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
