@@ -9,20 +9,27 @@ sales_data = []
 
 @app.route('/add_sale', methods=['POST'])
 def add_sale():
-    data = request.json
-    product = data.get("product")
-    price = float(data.get("price"))
-    quantity = int(data.get("quantity"))
-    date = data.get("date")
 
-    sale_record = {
-        "product": product,
-        "price": price,
-        "quantity": quantity,
-        "date": date
-    }
-    sales_data.append(sale_record)
-    return jsonify({"message": "Sale added successfully!", "sale": sale_record})
+    try:
+        data = request.get_json() # Get data into dict
+        print(data)
+        
+        # validate all the values and if one of them is None return an error message 
+        if not all(data[key] for key in data):
+            return jsonify({"error": "Some fields have empty or invalid values!"}), 400
+       
+        data['price'] = float(data['price']) # Make sure that data type is float
+        data['quantity'] = int(data['quantity']) # Make sure that data type is int
+        
+        
+        
+        sales_data.append(data)
+        print(sales_data)
+        return jsonify({"message": "Sale added successfully! ✅", "sale": data}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 @app.route('/update_quantity', methods=['POST'])

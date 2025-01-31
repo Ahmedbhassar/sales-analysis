@@ -4,16 +4,23 @@ async function addSale() {
     let quantity = parseInt(document.getElementById("quantity").value);
     let date = document.getElementById("date").value;
 
-    if (!product || isNaN(price) || isNaN(quantity) || !date) return;
 
     await fetch('/add_sale', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product, price, quantity, date })
+    }).then(response => response.json())
+    .then(data => {
+        let alertsection = document.getElementById('add-alert')
+        if(data.message){
+            alertsection.innerHTML = "<span style='color: green;'</span>"+data.message;
+            ["product", "price", "quantity", "date"].forEach(id => document.getElementById(id).value = "");
+    loadSalesData();
+        }
+        if (data.error){alertsection.innerHTML = "<span style='color: red;'</span>"+data.error;}
     });
 
-    ["product", "price", "quantity", "date"].forEach(id => document.getElementById(id).value = "");
-    loadSalesData();
+    
 }
 
 async function loadSalesData() {
