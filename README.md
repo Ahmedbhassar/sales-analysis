@@ -13,7 +13,7 @@ install the dependencies:
 ```sh
 pip install flask matplotlib
 ```
-## 🚀 How to Run
+##  How to Run
 1. Clone the repository:
    ```sh
    git clone https://github.com/https://github.com/Ahmedbhassar/sales-analysis .git

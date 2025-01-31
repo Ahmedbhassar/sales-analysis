@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesAnalysis </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+
+    <nav class="navbar">
+            <span>Sales Analysis</span>
+    </nav>
+
+    <div class="container">
+
+        <div class="form-section">
+            <h2>Add New Sale</h2>
+            <input type="text" id="product" placeholder="Product Name">
+            <input type="number" id="price" placeholder="Price ($)">
+            <input type="number" id="quantity" placeholder="Quantity">
+            <input type="date" id="date">
+            <button onclick="addSale()"> Add Sale</button>
+        </div>
+
+
+        <div class="data-section">
+            <h2> Sales Records</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>ِEdit</th>
+                    </tr>
+                </thead>
+                <tbody id="sales-table"></tbody>
+            </table>
+        </div>
+
+
+        <div class="charts-container">
+            <div class="chart-box">
+                <h2>Revenue by Product</h2>
+                <canvas id="revenueChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h2>Sales Progress Over Time</h2>
+                <canvas id="salesProgressChart"></canvas>
+            </div>
+
+        </div>
+        <div class="Discount-container">
+            <h2> Discount Suggestions</h2>
+            <h3>These discount suggestions are based on last month’s sales data.</h3>
+            <ul id="discount-list"></ul>
+    </div>
+    </div>
+
+    
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
