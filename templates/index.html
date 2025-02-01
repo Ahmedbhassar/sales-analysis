@@ -1,70 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SalesAnalysis </title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SalesAnalysis</title>
+    <!-- Link to your CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-
-
+  </head>
+  <body>
     <nav class="navbar">
-            <span>Sales Analysis</span>
+      <span>Sales Analysis</span>
     </nav>
 
     <div class="container">
+      <div class="form-section">
+        <h2>Add New Sale</h2>
+        <input type="text" id="product" placeholder="Product Name" />
+        <input type="number" id="price" placeholder="Price (SAR)" />
+        <input type="number" id="quantity" placeholder="Quantity" />
+        <input type="date" id="date" />
+        <button id="addSaleButton" onclick="addSale()">Add Sale</button>
 
-        <div class="form-section">
-            <h2>Add New Sale</h2>
-            <input type="text" id="product" placeholder="Product Name">
-            <input type="number" id="price" placeholder="Price ($)">
-            <input type="number" id="quantity" placeholder="Quantity">
-            <input type="date" id="date">
-            <h5 id="add-alert"> </h5>
-            <button onclick="addSale()"> Add Sale</button>
+        <!-- Alert placeholder for messages -->
+        <div id="add-alert"></div>
+      </div>
+
+      <div class="data-section">
+        <h2>Sales Records</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <tbody id="sales-table"></tbody>
+        </table>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-box">
+          <h2>Revenue by Product</h2>
+          <canvas id="revenueChart"></canvas>
         </div>
-
-
-        <div class="data-section">
-            <h2> Sales Records</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Date</th>
-                        <th>ِEdit</th>
-                    </tr>
-                </thead>
-                <tbody id="sales-table"></tbody>
-            </table>
+        <div class="chart-box">
+          <h2>Sales Progress Over Time</h2>
+          <canvas id="salesProgressChart"></canvas>
         </div>
+      </div>
 
+      <div class="Discount-container">
+        <h2>Discount Suggestions</h2>
+        <h3>
+          This discount suggestion is generated based on current sales data:
+        </h3>
+        <ul id="discount-list"></ul>
+      </div>
 
-        <div class="charts-container">
-            <div class="chart-box">
-                <h2>Revenue by Product</h2>
-                <canvas id="revenueChart"></canvas>
-            </div>
-            <div class="chart-box">
-                <h2>Sales Progress Over Time</h2>
-                <canvas id="salesProgressChart"></canvas>
-            </div>
-
-        </div>
-        <div class="Discount-container">
-            <h2> Discount Suggestions</h2>
-            <h3>The discount suggestion is generated based on current sales data :</h3>
-            <ul id="discount-list"></ul>
+      <div class="best-seller-container">
+        <h2>Best Selling Item</h2>
+        <h3>
+          The best selling item is generated based on the highest quantity sold:
+        </h3>
+        <p id="best-selling-item">No sales data available.</p>
+      </div>
     </div>
-    </div>
 
-    
-
+    <!-- Link to your external script -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+  </body>
 </html>
