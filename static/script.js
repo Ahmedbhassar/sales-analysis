@@ -1,86 +1,206 @@
+/*****************************************
+ * script.js
+ *****************************************/
+
+// Add Sale
 async function addSale() {
-    let product = document.getElementById("product").value.trim();
-    let price = parseFloat(document.getElementById("price").value);
-    let quantity = parseInt(document.getElementById("quantity").value);
-    let date = document.getElementById("date").value;
+    const product = document.getElementById("product").value.trim();
+    const price = parseFloat(document.getElementById("price").value);
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const date = document.getElementById("date").value;
 
+    const alertSection = document.getElementById("add-alert");
+    alertSection.innerHTML = ""; // Clear any old message
 
-    await fetch('/add_sale', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, price, quantity, date })
-    }).then(response => response.json())
-    .then(data => {
-        let alertsection = document.getElementById('add-alert')
-        if(data.message){
-            alertsection.innerHTML = "<span style='color: green;'</span>"+data.message;
-            ["product", "price", "quantity", "date"].forEach(id => document.getElementById(id).value = "");
-    loadSalesData();
+    try {
+        const response = await fetch('/add_sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product, price, quantity, date })
+        });
+        const data = await response.json();
+
+        if (data.message) {
+            // Success message
+            alertSection.innerHTML = `<span style="color: green;">${data.message}</span>`;
+            // Clear input fields
+            ["product", "price", "quantity", "date"].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+
+            // Refresh data and best seller
+            await loadSalesData();
+            await fetchBestSellingItem();
+        } else if (data.error) {
+            // Error message
+            alertSection.innerHTML = `<span style="color: red;">${data.error}</span>`;
         }
-        if (data.error){alertsection.innerHTML = "<span style='color: red;'</span>"+data.error;}
-    });
-
-    
+    } catch (error) {
+        console.error("Error adding sale:", error);
+        alertSection.innerHTML = `<span style="color: red;">Error adding sale.</span>`;
+    }
 }
 
+// Load Sales Data
 async function loadSalesData() {
-    let data = await (await fetch('/sales_data')).json();
-    updateTable(await (await fetch('/get_sales')).json());
-    renderChart('revenueChart', 'Revenue (SAR)', data.product_revenue);
-    renderChart('salesProgressChart', 'Total Revenue (SAR)', data.daily_sales);
-    suggestDiscount();
+    try {
+        // Fetch summary data (for charts)
+        const summaryRes = await fetch('/sales_data');
+        const summaryData = await summaryRes.json();
+
+        // Fetch the raw sales list for table display
+        const salesRes = await fetch('/get_sales');
+        const sales = await salesRes.json();
+
+        // Update table
+        updateTable(sales);
+
+        // Update charts
+        renderChart("revenueChart", "Revenue (SAR)", summaryData.product_revenue);
+        renderChart("salesProgressChart", "Total Revenue (SAR)", summaryData.daily_sales);
+
+        // Discount suggestions
+        await suggestDiscount();
+    } catch (error) {
+        console.error("Error loading sales data:", error);
+    }
 }
 
+// Update Table
 function updateTable(sales) {
-    let salesTable = document.getElementById("sales-table");
-    salesTable.innerHTML = sales.map(sale => `
-        <tr>
-            <td>${sale.product}</td>
-            <td>${sale.price.toFixed(2)} SAR</td>
-            <td id="quantity-${sale.product}">${sale.quantity}</td>
-            <td>${(sale.price * sale.quantity).toFixed(2)} SAR</td>
-            <td>${sale.date}</td>
-            <td><button onclick="enableEdit('${sale.product}')"style="font-size: 15px; width: 60px; padding: 2px 5px;">Update</button></td>
-        </tr>
-    `).join('');
+    const salesTable = document.getElementById("sales-table");
+    salesTable.innerHTML = sales.map(sale => {
+        const total = (sale.price * sale.quantity).toFixed(2);
+        return `
+            <tr>
+                <td>${sale.product}</td>
+                <td>${sale.price.toFixed(2)}</td>
+                <td id="quantity-${sale.product}">${sale.quantity}</td>
+                <td>${total}</td>
+                <td>${sale.date}</td>
+                <td>
+                    <button class="edit-button" onclick="enableEdit('${sale.product}')"
+                            style="font-size: 15px; width: 60px; padding: 2px 5px;">
+                        Update
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
+// Enable Edit
 function enableEdit(product) {
-    let field = document.getElementById(`quantity-${product}`);
-    field.innerHTML = `<input type="number" value="${field.innerText}" min="1" id="edit-${product}" style="width: 60px;">
-                       <button onclick="updateQuantity('${product}')" style="font-size: 15px; width: 60px; padding: 2px 5px;">Save</button>`;
+    const field = document.getElementById(`quantity-${product}`);
+    field.innerHTML = `
+        <input type="number" value="${field.innerText}" min="1" id="edit-${product}" style="width: 60px;">
+        <button onclick="updateQuantity('${product}')" style="font-size: 15px; width: 60px; padding: 2px 5px;">
+            Save
+        </button>
+    `;
 }
 
+// Update Quantity
 async function updateQuantity(product) {
-    let newQuantity = parseInt(document.getElementById(`edit-${product}`).value);
-    if (isNaN(newQuantity) || newQuantity < 1) return alert("Please enter a valid quantity!");
+    const newQuantity = parseInt(document.getElementById(`edit-${product}`).value);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        return alert("Please enter a valid quantity!");
+    }
 
-
-    await fetch('/update_quantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, quantity: newQuantity })
-    });
-
-    loadSalesData();
+    try {
+        await fetch('/update_quantity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product, quantity: newQuantity })
+        });
+        await loadSalesData();
+    } catch (error) {
+        console.error("Error updating quantity:", error);
+    }
 }
 
+// Suggest Discount
 async function suggestDiscount() {
-    let data = await (await fetch('/suggest_discount')).json();
-    document.getElementById("discount-list").innerHTML = data.discounted_products.length
-        ? data.discounted_products.map(p => `<li> 10% discount on product: ${p}</li>`).join('')
-        : "<li>No products qualify for a discount at the moment.</li>";
+    try {
+        const response = await fetch('/suggest_discount');
+        const data = await response.json();
+
+        const discountList = document.getElementById("discount-list");
+        if (data.discounted_products && data.discounted_products.length > 0) {
+            discountList.innerHTML = data.discounted_products
+                .map(p => `<li>10% discount on product: ${p}</li>`)
+                .join('');
+        } else {
+            discountList.innerHTML = "<li>No products qualify for a discount at the moment.</li>";
+        }
+    } catch (error) {
+        console.error("Error fetching discount suggestions:", error);
+    }
 }
 
+// Fetch Best Selling Item
+async function fetchBestSellingItem() {
+    try {
+        // Add timestamp to prevent caching
+        const response = await fetch('/best_selling_item?' + new Date().getTime());
+        const data = await response.json();
+
+        let bestSellerText;
+        if (data.best_selling_item) {
+            bestSellerText = `Best Seller: ${data.best_selling_item} (Sold: ${data.quantity_sold})`;
+        } else {
+            bestSellerText = "No sales data available.";
+        }
+
+        document.getElementById("best-selling-item").innerText = bestSellerText;
+    } catch (error) {
+        console.error("Error fetching best-selling item:", error);
+    }
+}
+
+// Chart handling
+let charts = {}; // to store chart instances
 
 function renderChart(elementId, label, data) {
-    new Chart(document.getElementById(elementId).getContext("2d"), {
-        type: 'bar',
+    // Recreate canvas to clear the old chart
+    const canvas = document.getElementById(elementId);
+    canvas.parentNode.innerHTML = `<canvas id="${elementId}"></canvas>`;
+    const ctx = document.getElementById(elementId).getContext("2d");
+
+    // Destroy old chart instance if exists
+    if (charts[elementId]) {
+        charts[elementId].destroy();
+    }
+
+    // Determine chart type: "line" for salesProgressChart, else "bar"
+    const chartType = (elementId === "salesProgressChart") ? "line" : "bar";
+
+    charts[elementId] = new Chart(ctx, {
+        type: chartType,
         data: {
             labels: Object.keys(data),
-            datasets: [{ label, data: Object.values(data), backgroundColor: 'rgba(0, 123, 255, 0.5)', borderColor: 'rgba(0, 123, 255, 1)', borderWidth: 1 }]
+            datasets: [{
+                label,
+                data: Object.values(data),
+                backgroundColor: chartType === "line"
+                    ? 'rgba(54, 162, 235, 0.2)'
+                    : 'rgba(0, 123, 255, 0.5)',
+                borderColor: chartType === "line"
+                    ? 'rgba(54, 162, 235, 1)'
+                    : 'rgba(0, 123, 255, 1)',
+                borderWidth: 2,
+                fill: chartType === "line"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
 
-window.onload = loadSalesData;
+// On page load
+window.onload = async () => {
+    await loadSalesData();
+    await fetchBestSellingItem();
+};
