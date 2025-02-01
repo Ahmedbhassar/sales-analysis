@@ -30,8 +30,6 @@ def add_sale():
         return jsonify({"error": str(e)}), 500
 
 
-
-
 @app.route('/update_quantity', methods=['POST'])
 def update_quantity():
     data = request.json
@@ -50,7 +48,6 @@ def update_quantity():
 def get_sales():
     return jsonify(sales_data)
 
- # Returns total revenue per product and daily sales revenue.
 @app.route('/sales_data', methods=['GET'])
 def sales_data_chart():
     product_revenue = {}
@@ -75,7 +72,7 @@ def sales_data_chart():
         "daily_sales": daily_sales
     })
 
-# Suggests a discount for the least sold product
+
 @app.route('/suggest_discount', methods=['GET'])
 def suggest_discount():
     if not sales_data:
@@ -83,12 +80,31 @@ def suggest_discount():
     
     product_sales = {}
     for sale in sales_data:
-        product_sales[sale["product"]] = product_sales.get(sale["product"], 0) + sale["quantity"]
+        product_sales[sale["product"]] = product_sales.get(sale["product"], 0) + (sale["quantity"] * sale["price"])
     
     discounted_products = sorted(product_sales, key=product_sales.get)[:1]
     
     return jsonify({"discounted_products": discounted_products})
 
+@app.route('/best_selling_item', methods=['GET'])
+def best_selling_item():
+    if not sales_data:
+        return jsonify({"best_selling_item": None})  # No sales data available
+
+    # Calculate total quantity sold per product
+    product_sales = {}
+    for sale in sales_data:
+        product = sale["product"]
+        product_sales[product] = product_sales.get(product, 0) + sale["quantity"]
+
+    # Use a lambda to get the item (key, value) with the highest quantity sold
+    
+    best_selling_product, best_quantity_sold = max(product_sales.items(), key=lambda item: item[1])
+
+    return jsonify({
+        "best_selling_item": best_selling_product,
+        "quantity_sold": best_quantity_sold
+    })
 
 
 @app.route('/')
