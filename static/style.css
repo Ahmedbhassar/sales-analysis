@@ -38,21 +38,39 @@ input {
     margin-left: 10px;
 }
 
-button {
+#addSaleButton {
     background: #007bff;
     color: white;
     border: none;
     padding: 15px;
     cursor: pointer;
-    margin-top: 15px;
-    width: 100%;
+    margin-top: 15px;  
+    margin-left: 20px;   /* This prevents true centering */
+    width: 100%;         /* Full width in its container */
     border-radius: 8px;
     font-size: 18px;
-    margin-left: 20px;
+    align-items: center;
 }
 
-button:hover {
+#addSaleButton:hover {
     background: #0056b3;
+}
+
+.edit-button {
+    background: #28a745;  /* Green background */
+    color: white;
+    border: none;
+    padding: 35px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 18px;
+    display: block;
+    width: 200px;
+    margin: 15px auto;
+}
+
+.edit-button:hover {
+    background: #218838;  /* Darker green on hover */
 }
 
 .charts-container {
@@ -62,6 +80,16 @@ button:hover {
     margin-top: 30px;
 }
 .Discount-container{
+    width: 90%;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    padding-right: 60px;
+}
+.best-seller-container {
     width: 90%;
     margin: auto;
     padding: 20px;
